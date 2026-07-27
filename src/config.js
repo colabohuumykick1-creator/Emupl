@@ -201,6 +201,7 @@ export const staffRoleKeys = [
 ];
 
 export const categories = [
+  { key: 'TEAM', name: 'EMULATOR TEAM', permissionMode: 'MEMBER' },
   { key: 'START', name: '📌 START', permissionMode: 'MEMBER' },
   { key: 'COMMUNITY', name: '🌐 SPOŁECZNOŚĆ', permissionMode: 'MEMBER' },
   { key: 'EMULATORS', name: '🕹️ EMULATORY', permissionMode: 'MEMBER' },
@@ -335,12 +336,11 @@ export const channels = [
   },
   {
     key: 'GLX_EXTREAM_TEAM',
-    category: 'COMMUNITY',
-    name: 'glx-extream-team-esport',
+    category: 'TEAM',
+    name: 'team',
     type: ChannelType.GuildText,
     topic: 'Oficjalny skład GLX Extream Team Esport / Official GLX Extream Team roster.',
     permissionMode: 'MEMBER_READ',
-    createIfMissing: true,
   },
   {
     key: 'EMU_NEWS',
