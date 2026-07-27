@@ -71,3 +71,13 @@ test('czaty językowe wymagają odpowiednich ról językowych', () => {
   assert.equal(polishChat.permissionMode, 'LANGUAGE_POLISH');
   assert.equal(englishChat.permissionMode, 'LANGUAGE_ENGLISH');
 });
+
+test('kanał GLX jest jedynym nowym kanałem drużyny i jest tylko do odczytu', () => {
+  const teamChannel = channels.find((channel) => channel.key === 'GLX_EXTREAM_TEAM');
+
+  assert.ok(teamChannel);
+  assert.equal(teamChannel.name, 'glx-extream-team-esport');
+  assert.equal(teamChannel.category, 'COMMUNITY');
+  assert.equal(teamChannel.permissionMode, 'MEMBER_READ');
+  assert.equal(teamChannel.createIfMissing, true);
+});

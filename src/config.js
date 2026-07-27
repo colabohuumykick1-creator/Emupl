@@ -334,6 +334,15 @@ export const channels = [
     topic: 'Komendy botów / Use bot commands here.',
   },
   {
+    key: 'GLX_EXTREAM_TEAM',
+    category: 'COMMUNITY',
+    name: 'glx-extream-team-esport',
+    type: ChannelType.GuildText,
+    topic: 'Oficjalny skład GLX Extream Team Esport / Official GLX Extream Team roster.',
+    permissionMode: 'MEMBER_READ',
+    createIfMissing: true,
+  },
+  {
     key: 'EMU_NEWS',
     category: 'EMULATORS',
     name: 'aktualnosci-emulacji',

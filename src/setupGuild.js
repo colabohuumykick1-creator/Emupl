@@ -27,6 +27,8 @@ const GAMELOOP_32_BIT_URL =
   'https://down.gameloop.com/channel/3/16412/GLP_installer_1000218456_market.exe';
 const GAMELOOP_64_BIT_URL =
   'https://down.gameloop.com/channel/3/26460/GLP_installer_900223150_market.exe';
+const GLX_TEAM_IMAGE_URL =
+  'https://raw.githubusercontent.com/bastian1v2v1-ctrl/EMUPLCOOM/main/assets/glx-extream-team-huumy.png';
 const VERIFIED_PUBLIC_CATEGORY_KEYS = ['START', 'COMMUNITY', 'EMULATORS', 'SUPPORT', 'VOICE'];
 const VERIFIED_ACCESS_EXCLUDED_CHANNEL_KEYS = ['VERIFICATION', 'CHAT_PL', 'CHAT_GB'];
 const VERIFIED_ACCESS_EXCLUDED_CHANNEL_NAMES = new Set(['weryfikacja', 'chat-pl', 'chat-gb']);
@@ -110,6 +112,17 @@ function buildOverwrites(guild, roleMap, mode) {
       return [
         { id: everyone, deny: [PermissionFlagsBits.ViewChannel] },
         { id: memberId, allow: allowText() },
+        ...staffIds.map((id) => ({ id, allow: allowText() })),
+        botOverwrite,
+      ];
+    case 'MEMBER_READ':
+      return [
+        { id: everyone, deny: [PermissionFlagsBits.ViewChannel] },
+        {
+          id: memberId,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
+          deny: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.AddReactions],
+        },
         ...staffIds.map((id) => ({ id, allow: allowText() })),
         botOverwrite,
       ];
@@ -532,6 +545,27 @@ export function starterMessages(roleMap) {
                   '🇬🇧 Paste short excerpts in the help channel and attach long logs as a file. Remove private information.',
               },
             ),
+        ),
+      ],
+    },
+    {
+      channelKey: 'GLX_EXTREAM_TEAM',
+      marker: 'setup:glx-extream-team:v1',
+      pin: true,
+      embeds: [
+        markerEmbed(
+          'setup:glx-extream-team:v1',
+          new EmbedBuilder()
+            .setColor(0xed1c24)
+            .setTitle('GLX EXTREAM TEAM ESPORT')
+            .setDescription(
+              '**SQUAD / SKŁAD**\n\n' +
+                '1. **GLX HUUMY**\n' +
+                '2. —\n' +
+                '3. —\n' +
+                '4. —',
+            )
+            .setImage(GLX_TEAM_IMAGE_URL),
         ),
       ],
     },
