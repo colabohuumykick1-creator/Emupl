@@ -246,6 +246,7 @@ export const channels = [
     permissionMode: 'VERIFICATION',
     adoptExisting: true,
     preserveOverwrites: true,
+    createIfMissing: true,
   },
   {
     key: 'WELCOME',

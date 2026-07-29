@@ -61,6 +61,7 @@ test('przed weryfikacją publiczny jest tylko kanał weryfikacji', () => {
 
   assert.equal(startCategory.permissionMode, 'MEMBER');
   assert.equal(verification.permissionMode, 'VERIFICATION');
+  assert.equal(verification.createIfMissing, true);
   assert.ok(remainingStartChannels.every((channel) => channel.permissionMode === 'MEMBER'));
 });
 
