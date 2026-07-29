@@ -38,7 +38,7 @@ test('setup nie tworzy brakujących kategorii ani kanałów', async () => {
   assert.equal(report.warnings.length, 2);
 });
 
-test('setup aktualizuje istniejący kanał bez przenoszenia go', async () => {
+test('setup zmienia starą polską nazwę kanału bez przenoszenia go', async () => {
   let editData;
   const existingChannel = {
     id: 'channel',
@@ -70,7 +70,8 @@ test('setup aktualizuje istniejący kanał bez przenoszenia go', async () => {
   const channel = await ensureChannel(
     guild,
     {
-      name: 'ogloszenia',
+      name: 'announcements',
+      legacyNames: ['ogloszenia'],
       type: ChannelType.GuildText,
       topic: 'Aktualności / News',
       permissionMode: 'MEMBER',
@@ -82,6 +83,7 @@ test('setup aktualizuje istniejący kanał bez przenoszenia go', async () => {
   );
 
   assert.equal(channel, existingChannel);
+  assert.equal(editData.name, 'announcements');
   assert.equal(Object.hasOwn(editData, 'parent'), false);
   assert.equal(editData.topic, 'Aktualności / News');
   assert.equal(report.created.length, 0);

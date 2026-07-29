@@ -31,7 +31,14 @@ const GLX_TEAM_IMAGE_URL =
   'https://raw.githubusercontent.com/bastian1v2v1-ctrl/EMUPLCOOM/main/assets/glx-extream-team-huumy.png';
 const VERIFIED_PUBLIC_CATEGORY_KEYS = ['START', 'COMMUNITY', 'EMULATORS', 'SUPPORT', 'VOICE'];
 const VERIFIED_ACCESS_EXCLUDED_CHANNEL_KEYS = ['VERIFICATION', 'CHAT_PL', 'CHAT_GB'];
-const VERIFIED_ACCESS_EXCLUDED_CHANNEL_NAMES = new Set(['weryfikacja', 'chat-pl', 'chat-gb']);
+const VERIFIED_ACCESS_EXCLUDED_CHANNEL_NAMES = new Set([
+  'verification',
+  'polish-chat',
+  'english-chat',
+  'weryfikacja',
+  'chat-pl',
+  'chat-gb',
+]);
 const BOT_PERMISSIONS = [
   PermissionFlagsBits.ViewChannel,
   PermissionFlagsBits.SendMessages,
@@ -196,7 +203,8 @@ async function ensureRole(guild, spec, report) {
 }
 
 export async function ensureCategory(guild, spec, roleMap, report) {
-  const sameName = guild.channels.cache.find((channel) => channel.name === spec.name);
+  const managedNames = new Set([spec.name, ...(spec.legacyNames ?? [])]);
+  const sameName = guild.channels.cache.find((channel) => managedNames.has(channel.name));
   if (sameName && sameName.type !== ChannelType.GuildCategory) {
     report.warnings.push(
       `Pominięto „${spec.name}”: element nie jest kategorią. / Skipped “${spec.name}”: the existing item is not a category.`,
@@ -219,6 +227,7 @@ export async function ensureCategory(guild, spec, roleMap, report) {
   };
 
   await sameName.edit({
+    name: data.name,
     permissionOverwrites: data.permissionOverwrites,
     reason: SETUP_REASON,
   });
@@ -228,7 +237,8 @@ export async function ensureCategory(guild, spec, roleMap, report) {
 
 export async function ensureChannel(guild, spec, category, categorySpec, roleMap, report) {
   const acceptedTypes = new Set([spec.type, ...(spec.acceptedTypes ?? [])]);
-  const candidates = guild.channels.cache.filter((channel) => channel.name === spec.name);
+  const managedNames = new Set([spec.name, ...(spec.legacyNames ?? [])]);
+  const candidates = guild.channels.cache.filter((channel) => managedNames.has(channel.name));
   const categoryId = category?.id;
   const sameName =
     candidates.find(
@@ -391,16 +401,16 @@ export function starterMessages(roleMap) {
             .setDescription(
               '🇵🇱 **Wersja polska**\n' +
                 'Ten serwer jest przeznaczony dla osób grających za pomocą emulatora **GameLoop**. Znajdziesz tutaj graczy, pomoc techniczną, sprawdzone ustawienia i porady dotyczące optymalizacji.\n\n' +
-                '1. Przeczytaj **#regulamin** i przestrzegaj zasad.\n' +
-                '2. Wybierz język oraz zainteresowania na **#wybierz-role**.\n' +
-                '3. Przedstaw się na **#przedstaw-sie**.\n' +
-                '4. Potrzebujesz pomocy? Opisz problem na **#pomoc-emulatory**.\n\n' +
+                '1. Przeczytaj **#rules** i przestrzegaj zasad.\n' +
+                '2. Wybierz język oraz zainteresowania na **#choose-roles**.\n' +
+                '3. Przedstaw się na **#introductions**.\n' +
+                '4. Potrzebujesz pomocy? Opisz problem na **#emulator-help**.\n\n' +
                 '🇬🇧 **English version**\n' +
                 'This server is for players using the **GameLoop** emulator. Here you will find other players, technical support, tested settings and performance tips.\n\n' +
-                '1. Read **#regulamin** and follow the rules.\n' +
-                '2. Choose your language and interests in **#wybierz-role**.\n' +
-                '3. Introduce yourself in **#przedstaw-sie**.\n' +
-                '4. Need help? Describe your issue in **#pomoc-emulatory**.\n\n' +
+                '1. Read **#rules** and follow the rules.\n' +
+                '2. Choose your language and interests in **#choose-roles**.\n' +
+                '3. Introduce yourself in **#introductions**.\n' +
+                '4. Need help? Describe your issue in **#emulator-help**.\n\n' +
                 'Play fair, respect others and help the EMUPLCOOM community grow!',
             ),
         ),
@@ -503,8 +513,8 @@ export function starterMessages(roleMap) {
             .setDescription(
               `🇵🇱 Kliknij przycisk, aby dodać lub usunąć rolę.\n🇬🇧 Click a button to add or remove a role.\n\n` +
                 `${memberRole} — weryfikacja i dostęp do serwera / verification and server access\n` +
-                `${polishRole} — język polski i #chat-pl / Polish language and #chat-pl\n` +
-                `${englishRole} — język angielski i #chat-gb / English language and #chat-gb\n` +
+                `${polishRole} — język polski i #polish-chat / Polish language and #polish-chat\n` +
+                `${englishRole} — język angielski i #english-chat / English language and #english-chat\n` +
                 `${newsRole} — aktualizacje / update notifications\n` +
                 `${eventsRole} — wydarzenia / community events\n\n` +
                 '🇵🇱 Pozostałe role określają platformę i zainteresowania.\n' +
