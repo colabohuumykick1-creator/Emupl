@@ -12,7 +12,12 @@ import { BRAND } from './config.js';
 import { commandData } from './commands.js';
 import { sendEmbedCommand } from './embedCommand.js';
 import { startHealthServer } from './healthServer.js';
-import { setupGuild, toggleSelfRole, verifyMember } from './setupGuild.js';
+import {
+  assignUnverifiedRole,
+  setupGuild,
+  toggleSelfRole,
+  verifyMember,
+} from './setupGuild.js';
 
 const token = process.env.DISCORD_TOKEN?.trim();
 const guildId = process.env.GUILD_ID?.trim();
@@ -27,7 +32,9 @@ if (!guildId || guildId === 'wklej_tutaj_id_serwera') {
   process.exit(1);
 }
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
+});
 const healthServer = startHealthServer(client);
 let setupRunning = false;
 
@@ -58,6 +65,16 @@ client.once(Events.ClientReady, async (readyClient) => {
     console.log('Wpisz /setup na serwerze, aby ręcznie zaktualizować konfigurację.');
   } catch (error) {
     console.error('Błąd podczas startu bota:', error);
+  }
+});
+
+client.on(Events.GuildMemberAdd, async (member) => {
+  if (member.guild.id !== guildId) return;
+
+  try {
+    await assignUnverifiedRole(member);
+  } catch (error) {
+    console.error(`Nie udało się nadać roli Unverified użytkownikowi ${member.user.tag}:`, error);
   }
 });
 

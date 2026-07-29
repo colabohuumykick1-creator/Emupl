@@ -92,9 +92,16 @@ function buildOverwrites(guild, roleMap, mode) {
 
   switch (mode) {
     case 'VERIFICATION':
+      {
+        const unverifiedId = roleMap.get(ROLE_KEYS.UNVERIFIED).id;
       return [
         {
           id: everyone,
+          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
+          deny: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.AddReactions],
+        },
+        {
+          id: unverifiedId,
           allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
           deny: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.AddReactions],
         },
@@ -102,6 +109,7 @@ function buildOverwrites(guild, roleMap, mode) {
         ...staffIds.map((id) => ({ id, allow: allowText() })),
         botOverwrite,
       ];
+      }
     case 'PUBLIC_READ':
       return [
         {
@@ -421,7 +429,9 @@ function verificationPanelComponents() {
 }
 
 export function starterMessages(roleMap) {
+  const unverifiedRole = roleMap.get(ROLE_KEYS.UNVERIFIED);
   const memberRole = roleMap.get(ROLE_KEYS.MEMBER);
+  const verifiedRole = roleMap.get(ROLE_KEYS.VERIFIED);
   const polishRole = roleMap.get(ROLE_KEYS.POLISH);
   const englishRole = roleMap.get(ROLE_KEYS.ENGLISH);
   const newsRole = roleMap.get(ROLE_KEYS.NEWS);
@@ -448,8 +458,8 @@ export function starterMessages(roleMap) {
               {
                 name: '✅ One click / Jedno kliknięcie',
                 value:
-                  `You will receive ${memberRole} and the selected language role automatically.\n` +
-                  `Automatycznie otrzymasz rolę ${memberRole} oraz wybraną rolę językową.`,
+                  `${unverifiedRole} will be removed. You will receive ${memberRole}, ${verifiedRole} and the selected language role automatically.\n` +
+                  `${unverifiedRole} zostanie usunięta. Automatycznie otrzymasz role ${memberRole}, ${verifiedRole} oraz wybraną rolę językową.`,
               },
               {
                 name: '📜 Rules / Regulamin',
@@ -1104,7 +1114,7 @@ export async function verifyMember(interaction) {
 
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-  const requestedRoleKeys = [ROLE_KEYS.MEMBER, ...choice.roleKeys];
+  const requestedRoleKeys = [ROLE_KEYS.MEMBER, ROLE_KEYS.VERIFIED, ...choice.roleKeys];
   const requestedRoles = requestedRoleKeys.map((roleKey) =>
     findConfiguredRole(interaction.guild, roleKey),
   );
@@ -1129,11 +1139,32 @@ export async function verifyMember(interaction) {
 
   const member = await interaction.guild.members.fetch(interaction.user.id);
   const rolesToAdd = requestedRoles.filter((role) => !member.roles.cache.has(role.id));
+  const unverifiedRole = findConfiguredRole(interaction.guild, ROLE_KEYS.UNVERIFIED);
+
+  if (
+    unverifiedRole &&
+    member.roles.cache.has(unverifiedRole.id) &&
+    !unverifiedRole.editable
+  ) {
+    await interaction.editReply({
+      content:
+        `Nie mogę usunąć roli ${unverifiedRole}. Przenieś rolę bota wyżej. / ` +
+        `I cannot remove ${unverifiedRole}. Move the bot role higher.`,
+    });
+    return;
+  }
 
   if (rolesToAdd.length) {
     await member.roles.add(
       rolesToAdd.map((role) => role.id),
       `PL EMULATOR CENTER verification: ${choiceKey}`,
+    );
+  }
+
+  if (unverifiedRole && member.roles.cache.has(unverifiedRole.id)) {
+    await member.roles.remove(
+      unverifiedRole.id,
+      `PL EMULATOR CENTER verification complete: ${choiceKey}`,
     );
   }
 
@@ -1159,4 +1190,30 @@ export async function verifyMember(interaction) {
   await sendVerificationLog(interaction, choice, rolesToAdd).catch((error) => {
     console.error('Nie udało się zapisać logu weryfikacji:', error);
   });
+}
+
+export async function assignUnverifiedRole(member) {
+  if (member.user.bot) return;
+
+  const unverifiedRole = findConfiguredRole(member.guild, ROLE_KEYS.UNVERIFIED);
+  const memberRole = findConfiguredRole(member.guild, ROLE_KEYS.MEMBER);
+  const verifiedRole = findConfiguredRole(member.guild, ROLE_KEYS.VERIFIED);
+
+  if (!unverifiedRole) {
+    throw new Error('Missing Unverified role. Run /setup.');
+  }
+
+  if (!unverifiedRole.editable) {
+    throw new Error('The bot role must be above Unverified.');
+  }
+
+  if (
+    member.roles.cache.has(memberRole?.id) ||
+    member.roles.cache.has(verifiedRole?.id) ||
+    member.roles.cache.has(unverifiedRole.id)
+  ) {
+    return;
+  }
+
+  await member.roles.add(unverifiedRole.id, 'New PL EMULATOR CENTER member');
 }

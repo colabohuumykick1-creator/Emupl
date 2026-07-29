@@ -20,6 +20,8 @@ test('przewodnik GameLoop mieści się w limitach wiadomości Discorda', () => {
   const roleMap = new Map(
     [
       ROLE_KEYS.MEMBER,
+      ROLE_KEYS.UNVERIFIED,
+      ROLE_KEYS.VERIFIED,
       ROLE_KEYS.POLISH,
       ROLE_KEYS.ENGLISH,
       ROLE_KEYS.NEWS,
@@ -62,6 +64,8 @@ test('regulamin ma odstęp między polską i angielską wersją każdego punktu'
   const roleMap = new Map(
     [
       ROLE_KEYS.MEMBER,
+      ROLE_KEYS.UNVERIFIED,
+      ROLE_KEYS.VERIFIED,
       ROLE_KEYS.POLISH,
       ROLE_KEYS.ENGLISH,
       ROLE_KEYS.NEWS,
@@ -81,6 +85,8 @@ test('FAQ jest przenoszone do kanału o-gameloop', () => {
   const roleMap = new Map(
     [
       ROLE_KEYS.MEMBER,
+      ROLE_KEYS.UNVERIFIED,
+      ROLE_KEYS.VERIFIED,
       ROLE_KEYS.POLISH,
       ROLE_KEYS.ENGLISH,
       ROLE_KEYS.NEWS,
@@ -103,6 +109,8 @@ test('wiadomość GLX zawiera cztery miejsca i tylko nick GLX HUUMY', () => {
   const roleMap = new Map(
     [
       ROLE_KEYS.MEMBER,
+      ROLE_KEYS.UNVERIFIED,
+      ROLE_KEYS.VERIFIED,
       ROLE_KEYS.POLISH,
       ROLE_KEYS.ENGLISH,
       ROLE_KEYS.NEWS,

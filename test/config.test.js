@@ -45,11 +45,19 @@ test('panel ról mieści się w limicie komponentów Discorda', () => {
   assert.ok(selfAssignableRoles.length <= 25);
 });
 
-test('rola weryfikacyjna nie jest dostępna w panelu ról', () => {
-  const verifiedRole = roles.find((role) => role.key === ROLE_KEYS.MEMBER);
-  assert.equal(verifiedRole.name, 'Zweryfikowany');
-  assert.equal(verifiedRole.selfAssignable, undefined);
-  assert.equal(selfAssignableRoles.includes(verifiedRole), false);
+test('role systemu weryfikacji nie są dostępne w panelu ról', () => {
+  const systemRoles = [
+    roles.find((role) => role.key === ROLE_KEYS.UNVERIFIED),
+    roles.find((role) => role.key === ROLE_KEYS.MEMBER),
+    roles.find((role) => role.key === ROLE_KEYS.VERIFIED),
+  ];
+
+  assert.deepEqual(
+    systemRoles.map((role) => role.name),
+    ['Unverified', 'Zweryfikowany', 'Verified'],
+  );
+  assert.ok(systemRoles.every((role) => role.selfAssignable === undefined));
+  assert.ok(systemRoles.every((role) => !selfAssignableRoles.includes(role)));
 });
 
 test('przed weryfikacją publiczny jest tylko kanał weryfikacji', () => {
