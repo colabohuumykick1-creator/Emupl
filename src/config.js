@@ -239,8 +239,8 @@ export const channels = [
   {
     key: 'VERIFICATION',
     category: 'START',
-    name: 'verification',
-    legacyNames: ['weryfikacja'],
+    name: 'weryfikacja',
+    legacyNames: ['verification'],
     type: ChannelType.GuildText,
     topic: 'Zweryfikuj się, aby uzyskać dostęp / Verify to access the EMUPLCOOM server.',
     permissionMode: 'VERIFICATION',
