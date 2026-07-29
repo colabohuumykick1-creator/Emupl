@@ -29,7 +29,14 @@ const GAMELOOP_64_BIT_URL =
   'https://down.gameloop.com/channel/3/26460/GLP_installer_900223150_market.exe';
 const GLX_TEAM_IMAGE_URL =
   'https://raw.githubusercontent.com/bastian1v2v1-ctrl/EMUPLCOOM/main/assets/glx-extream-team-huumy.png';
-const VERIFIED_PUBLIC_CATEGORY_KEYS = ['START', 'COMMUNITY', 'EMULATORS', 'SUPPORT', 'VOICE'];
+const VERIFIED_PUBLIC_CATEGORY_KEYS = [
+  'TEAM',
+  'START',
+  'COMMUNITY',
+  'EMULATORS',
+  'SUPPORT',
+  'VOICE',
+];
 const VERIFIED_ACCESS_EXCLUDED_CHANNEL_KEYS = ['VERIFICATION', 'CHAT_PL', 'CHAT_GB'];
 const VERIFIED_ACCESS_EXCLUDED_CHANNEL_NAMES = new Set([
   'verification',
@@ -380,6 +387,39 @@ function rolePanelComponents() {
   return rows;
 }
 
+const VERIFICATION_CHOICES = {
+  POLISH: {
+    label: 'Polski',
+    emoji: '🇵🇱',
+    roleKeys: [ROLE_KEYS.POLISH],
+    responseLabel: 'Polski',
+  },
+  ENGLISH: {
+    label: 'English',
+    emoji: '🇬🇧',
+    roleKeys: [ROLE_KEYS.ENGLISH],
+    responseLabel: 'English',
+  },
+  BOTH: {
+    label: 'PL + EN',
+    emoji: '🌍',
+    roleKeys: [ROLE_KEYS.POLISH, ROLE_KEYS.ENGLISH],
+    responseLabel: 'Polski + English',
+  },
+};
+
+function verificationPanelComponents() {
+  const buttons = Object.entries(VERIFICATION_CHOICES).map(([key, choice]) =>
+    new ButtonBuilder()
+      .setCustomId(`emuplcoom-verify:${key}`)
+      .setLabel(choice.label)
+      .setEmoji(choice.emoji)
+      .setStyle(key === 'BOTH' ? ButtonStyle.Success : ButtonStyle.Primary),
+  );
+
+  return [new ActionRowBuilder().addComponents(buttons)];
+}
+
 export function starterMessages(roleMap) {
   const memberRole = roleMap.get(ROLE_KEYS.MEMBER);
   const polishRole = roleMap.get(ROLE_KEYS.POLISH);
@@ -388,6 +428,46 @@ export function starterMessages(roleMap) {
   const eventsRole = roleMap.get(ROLE_KEYS.EVENTS);
 
   return [
+    {
+      channelKey: 'VERIFICATION',
+      marker: 'setup:verification:v1',
+      pin: true,
+      embeds: [
+        markerEmbed(
+          'setup:verification:v1',
+          new EmbedBuilder()
+            .setColor(0x57f287)
+            .setTitle('🔐 PL EMULATOR CENTER — Secure Verification')
+            .setDescription(
+              'Welcome to the international **GameLoop emulator community**.\n' +
+                'Choose your language below to verify your account and unlock the server.\n\n' +
+                'Witaj w międzynarodowej społeczności graczy korzystających z emulatora **GameLoop**.\n' +
+                'Wybierz język poniżej, aby zweryfikować konto i odblokować serwer.',
+            )
+            .addFields(
+              {
+                name: '✅ One click / Jedno kliknięcie',
+                value:
+                  `You will receive ${memberRole} and the selected language role automatically.\n` +
+                  `Automatycznie otrzymasz rolę ${memberRole} oraz wybraną rolę językową.`,
+              },
+              {
+                name: '📜 Rules / Regulamin',
+                value:
+                  'By verifying, you confirm that you will follow the server rules, respect other members and use only legal, fair-play software.\n\n' +
+                  'Weryfikując konto, potwierdzasz przestrzeganie regulaminu, szacunek wobec innych i korzystanie wyłącznie z legalnego oprogramowania zgodnego z zasadami fair play.',
+              },
+              {
+                name: '🛡️ Safety / Bezpieczeństwo',
+                value:
+                  'The bot never asks for your password, token, e-mail address or game account details.\n' +
+                  'Bot nigdy nie prosi o hasło, token, adres e-mail ani dane konta w grze.',
+              },
+            ),
+        ),
+      ],
+      components: verificationPanelComponents(),
+    },
     {
       channelKey: 'WELCOME',
       marker: 'setup:welcome:v1',
@@ -955,5 +1035,128 @@ export async function toggleSelfRole(interaction) {
       ? `Usunięto rolę ${role}. / Removed role ${role}.`
       : `Dodano rolę ${role}. / Added role ${role}.`,
     flags: MessageFlags.Ephemeral,
+  });
+}
+
+function findConfiguredRole(guild, roleKey) {
+  const spec = roles.find((role) => role.key === roleKey);
+  if (!spec) return null;
+
+  return guild.roles.cache.find(
+    (role) =>
+      !role.managed &&
+      (role.name === spec.name || (spec.legacyNames ?? []).includes(role.name)),
+  );
+}
+
+async function sendVerificationLog(interaction, choice, addedRoles) {
+  const logSpec = channels.find((channel) => channel.key === 'LOGS');
+  const acceptedNames = new Set([logSpec.name, ...(logSpec.legacyNames ?? [])]);
+  const logChannel = interaction.guild.channels.cache.find(
+    (channel) =>
+      acceptedNames.has(channel.name) &&
+      typeof channel.isTextBased === 'function' &&
+      channel.isTextBased(),
+  );
+
+  if (!logChannel || typeof logChannel.send !== 'function') return;
+
+  await logChannel.send({
+    embeds: [
+      new EmbedBuilder()
+        .setColor(0x57f287)
+        .setTitle('Member verified / Użytkownik zweryfikowany ✅')
+        .addFields(
+          {
+            name: 'User / Użytkownik',
+            value: `${interaction.user} (\`${interaction.user.id}\`)`,
+          },
+          { name: 'Language / Język', value: choice.responseLabel, inline: true },
+          {
+            name: 'Roles added / Dodane role',
+            value: addedRoles.length ? addedRoles.map((role) => `${role}`).join(', ') : 'None',
+            inline: true,
+          },
+          {
+            name: 'Account created / Konto utworzone',
+            value: `<t:${Math.floor(interaction.user.createdTimestamp / 1000)}:R>`,
+          },
+        )
+        .setTimestamp()
+        .setFooter({ text: BRAND.footer }),
+    ],
+    allowedMentions: { parse: [] },
+  });
+}
+
+export async function verifyMember(interaction) {
+  const choiceKey = interaction.customId.split(':')[1];
+  const choice = VERIFICATION_CHOICES[choiceKey];
+
+  if (!choice) {
+    await interaction.reply({
+      content:
+        'Ta opcja weryfikacji jest nieprawidłowa. / This verification option is invalid.',
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+  const requestedRoleKeys = [ROLE_KEYS.MEMBER, ...choice.roleKeys];
+  const requestedRoles = requestedRoleKeys.map((roleKey) =>
+    findConfiguredRole(interaction.guild, roleKey),
+  );
+
+  if (requestedRoles.some((role) => !role)) {
+    await interaction.editReply({
+      content:
+        'Nie znaleziono wymaganych ról. Administrator powinien użyć `/setup`. / Required roles were not found. An administrator should run `/setup`.',
+    });
+    return;
+  }
+
+  const uneditableRole = requestedRoles.find((role) => !role.editable);
+  if (uneditableRole) {
+    await interaction.editReply({
+      content:
+        `Nie mogę nadać roli ${uneditableRole}. Przenieś rolę bota wyżej. / ` +
+        `I cannot assign ${uneditableRole}. Move the bot role higher.`,
+    });
+    return;
+  }
+
+  const member = await interaction.guild.members.fetch(interaction.user.id);
+  const rolesToAdd = requestedRoles.filter((role) => !member.roles.cache.has(role.id));
+
+  if (rolesToAdd.length) {
+    await member.roles.add(
+      rolesToAdd.map((role) => role.id),
+      `PL EMULATOR CENTER verification: ${choiceKey}`,
+    );
+  }
+
+  await interaction.editReply({
+    embeds: [
+      new EmbedBuilder()
+        .setColor(0x57f287)
+        .setTitle(
+          rolesToAdd.length
+            ? 'Verification complete / Weryfikacja zakończona ✅'
+            : 'Already verified / Konto już zweryfikowane ✅',
+        )
+        .setDescription(
+          `**Language / Język:** ${choice.responseLabel}\n\n` +
+            'You now have access to the server. Start in **#welcome**, read **#rules**, then choose additional roles in **#choose-roles**.\n\n' +
+            'Masz już dostęp do serwera. Zacznij od **#welcome**, przeczytaj **#rules**, a następnie wybierz dodatkowe role na **#choose-roles**.',
+        )
+        .setFooter({ text: BRAND.footer })
+        .setTimestamp(),
+    ],
+  });
+
+  await sendVerificationLog(interaction, choice, rolesToAdd).catch((error) => {
+    console.error('Nie udało się zapisać logu weryfikacji:', error);
   });
 }

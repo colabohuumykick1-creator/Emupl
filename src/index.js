@@ -12,7 +12,7 @@ import { BRAND } from './config.js';
 import { commandData } from './commands.js';
 import { sendEmbedCommand } from './embedCommand.js';
 import { startHealthServer } from './healthServer.js';
-import { setupGuild, toggleSelfRole } from './setupGuild.js';
+import { setupGuild, toggleSelfRole, verifyMember } from './setupGuild.js';
 
 const token = process.env.DISCORD_TOKEN?.trim();
 const guildId = process.env.GUILD_ID?.trim();
@@ -63,6 +63,11 @@ client.once(Events.ClientReady, async (readyClient) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
+    if (interaction.isButton() && interaction.customId.startsWith('emuplcoom-verify:')) {
+      await verifyMember(interaction);
+      return;
+    }
+
     if (interaction.isButton() && interaction.customId.startsWith('emuplcoom-role:')) {
       await toggleSelfRole(interaction);
       return;
