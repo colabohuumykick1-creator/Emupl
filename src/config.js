@@ -272,7 +272,7 @@ export const channels = [
     legacyNames: ['powitanie'],
     type: ChannelType.GuildText,
     topic: 'Witaj w społeczności GameLoop / Welcome to the GameLoop community.',
-    permissionMode: 'MEMBER',
+    permissionMode: 'MEMBER_READ',
   },
   {
     key: 'GAMELOOP_INFO',
@@ -282,7 +282,7 @@ export const channels = [
     type: ChannelType.GuildText,
     topic:
       'Czym jest GameLoop, legalność, bezpieczeństwo i oficjalne linki / GameLoop explained, legality, safety and official links.',
-    permissionMode: 'MEMBER',
+    permissionMode: 'MEMBER_READ',
     createIfMissing: true,
   },
   {
@@ -292,7 +292,7 @@ export const channels = [
     legacyNames: ['regulamin'],
     type: ChannelType.GuildText,
     topic: 'Zasady społeczności / EMUPLCOOM community rules.',
-    permissionMode: 'MEMBER',
+    permissionMode: 'MEMBER_READ',
   },
   {
     key: 'ANNOUNCEMENTS',
@@ -302,7 +302,7 @@ export const channels = [
     type: ChannelType.GuildText,
     acceptedTypes: [ChannelType.GuildAnnouncement],
     topic: 'Najważniejsze informacje / Important server news and updates.',
-    permissionMode: 'MEMBER',
+    permissionMode: 'MEMBER_READ',
   },
   {
     key: 'ROLES',
@@ -311,7 +311,7 @@ export const channels = [
     legacyNames: ['wybierz-role'],
     type: ChannelType.GuildText,
     topic: 'Wybierz swoje role / Choose your roles.',
-    permissionMode: 'MEMBER',
+    permissionMode: 'MEMBER_READ',
   },
   {
     key: 'FAQ',
@@ -319,7 +319,7 @@ export const channels = [
     name: 'faq',
     type: ChannelType.GuildText,
     topic: 'Najczęstsze pytania / Frequently asked questions.',
-    permissionMode: 'MEMBER',
+    permissionMode: 'MEMBER_READ',
   },
   {
     key: 'GENERAL',
@@ -329,6 +329,7 @@ export const channels = [
     type: ChannelType.GuildText,
     topic: 'Główny czat społeczności / Main EMUPLCOOM community chat.',
     slowmode: 2,
+    permissionMode: 'MEMBER',
   },
   {
     key: 'CHAT_PL',
@@ -358,6 +359,7 @@ export const channels = [
     type: ChannelType.GuildText,
     topic: 'Przedstaw się społeczności / Introduce yourself to the community.',
     slowmode: 10,
+    permissionMode: 'MEMBER',
   },
   {
     key: 'SHOWCASE',
@@ -366,6 +368,7 @@ export const channels = [
     legacyNames: ['screeny-i-setupy'],
     type: ChannelType.GuildText,
     topic: 'Pokaż swój sprzęt i ustawienia / Share your hardware and emulator setup.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'MEMES',
@@ -374,6 +377,7 @@ export const channels = [
     legacyNames: ['memy'],
     type: ChannelType.GuildText,
     topic: 'Memy o grach i emulatorach / Gaming and emulator memes.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'OFFTOPIC',
@@ -381,6 +385,7 @@ export const channels = [
     name: 'off-topic',
     type: ChannelType.GuildText,
     topic: 'Luźne rozmowy / Conversations not directly related to emulators.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'BOT_COMMANDS',
@@ -389,6 +394,7 @@ export const channels = [
     legacyNames: ['komendy-bota'],
     type: ChannelType.GuildText,
     topic: 'Komendy botów / Use bot commands here.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'GLX_EXTREAM_TEAM',
@@ -405,6 +411,7 @@ export const channels = [
     legacyNames: ['aktualnosci-emulacji'],
     type: ChannelType.GuildText,
     topic: 'Aktualności emulatorów / Emulator releases, fixes and important news.',
+    permissionMode: 'MEMBER_READ',
   },
   {
     key: 'CONFIGS',
@@ -413,6 +420,7 @@ export const channels = [
     legacyNames: ['konfiguracje'],
     type: ChannelType.GuildText,
     topic: 'Sprawdzone ustawienia / Tested emulator and controller configurations.',
+    permissionMode: 'MEMBER_READ',
   },
   {
     key: 'COMPATIBILITY',
@@ -421,6 +429,7 @@ export const channels = [
     legacyNames: ['kompatybilnosc-gier'],
     type: ChannelType.GuildText,
     topic: 'Zgodność i błędy gier / Game compatibility, tests and known issues.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'PERFORMANCE',
@@ -429,6 +438,7 @@ export const channels = [
     legacyNames: ['wydajnosc-i-sprzet'],
     type: ChannelType.GuildText,
     topic: 'Optymalizacja i sprzęt / Performance, requirements and hardware advice.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'MODS',
@@ -437,6 +447,7 @@ export const channels = [
     legacyNames: ['mody-i-save'],
     type: ChannelType.GuildText,
     topic: 'Mody i zapisy / Mods, graphics improvements and save management.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'RETRO',
@@ -445,6 +456,7 @@ export const channels = [
     legacyNames: ['retro-strefa'],
     type: ChannelType.GuildText,
     topic: 'Klasyczne gry i platformy / Classic games, platforms and emulation history.',
+    permissionMode: 'MEMBER',
   },
   {
     key: 'HELP',
@@ -454,6 +466,7 @@ export const channels = [
     type: ChannelType.GuildText,
     topic: 'Pomoc techniczna / Describe GameLoop, your system, hardware and exact issue.',
     slowmode: 10,
+    permissionMode: 'MEMBER',
   },
   {
     key: 'ISSUES',
@@ -463,6 +476,7 @@ export const channels = [
     type: ChannelType.GuildText,
     topic: 'Problemy z serwerem lub botem / Server or bot technical issues.',
     slowmode: 15,
+    permissionMode: 'MEMBER',
   },
   {
     key: 'SUGGESTIONS',
@@ -472,6 +486,7 @@ export const channels = [
     type: ChannelType.GuildText,
     topic: 'Propozycje rozwoju / Ideas for improving the EMUPLCOOM community.',
     slowmode: 30,
+    permissionMode: 'MEMBER',
   },
   {
     key: 'LOBBY',

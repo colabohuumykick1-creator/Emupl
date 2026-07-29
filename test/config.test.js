@@ -70,7 +70,40 @@ test('przed weryfikacją publiczny jest tylko kanał weryfikacji', () => {
   assert.equal(startCategory.permissionMode, 'MEMBER');
   assert.equal(verification.permissionMode, 'VERIFICATION');
   assert.equal(verification.createIfMissing, true);
-  assert.ok(remainingStartChannels.every((channel) => channel.permissionMode === 'MEMBER'));
+  assert.ok(remainingStartChannels.every((channel) => channel.permissionMode === 'MEMBER_READ'));
+});
+
+test('kanały informacyjne są tylko do odczytu, a dyskusyjne pozwalają pisać', () => {
+  const readOnlyKeys = [
+    'WELCOME',
+    'GAMELOOP_INFO',
+    'RULES',
+    'ANNOUNCEMENTS',
+    'ROLES',
+    'FAQ',
+    'GLX_EXTREAM_TEAM',
+    'EMU_NEWS',
+    'CONFIGS',
+  ];
+  const writableKeys = [
+    'GENERAL',
+    'INTRODUCTIONS',
+    'SHOWCASE',
+    'MEMES',
+    'OFFTOPIC',
+    'BOT_COMMANDS',
+    'COMPATIBILITY',
+    'PERFORMANCE',
+    'MODS',
+    'RETRO',
+    'HELP',
+    'ISSUES',
+    'SUGGESTIONS',
+  ];
+  const channelByKey = new Map(channels.map((channel) => [channel.key, channel]));
+
+  assert.ok(readOnlyKeys.every((key) => channelByKey.get(key)?.permissionMode === 'MEMBER_READ'));
+  assert.ok(writableKeys.every((key) => channelByKey.get(key)?.permissionMode === 'MEMBER'));
 });
 
 test('czaty językowe wymagają odpowiednich ról językowych', () => {

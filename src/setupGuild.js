@@ -81,6 +81,18 @@ function allowVoice() {
   ];
 }
 
+function denyReadOnlyActions() {
+  return [
+    PermissionFlagsBits.SendMessages,
+    PermissionFlagsBits.AddReactions,
+    PermissionFlagsBits.CreatePublicThreads,
+    PermissionFlagsBits.CreatePrivateThreads,
+    PermissionFlagsBits.SendMessagesInThreads,
+    PermissionFlagsBits.UseApplicationCommands,
+    PermissionFlagsBits.SendVoiceMessages,
+  ];
+}
+
 function buildOverwrites(guild, roleMap, mode) {
   const everyone = guild.roles.everyone.id;
   const botId = guild.members.me.id;
@@ -143,7 +155,7 @@ function buildOverwrites(guild, roleMap, mode) {
         {
           id: memberId,
           allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
-          deny: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.AddReactions],
+          deny: denyReadOnlyActions(),
         },
         ...staffIds.map((id) => ({ id, allow: allowText() })),
         botOverwrite,
