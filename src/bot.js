@@ -49,7 +49,9 @@ client.once(Events.ClientReady, async (readyClient) => {
   try {
     const guild = await readyClient.guilds.fetch(guildId);
     await guild.commands.set(commandData);
-    readyClient.user.setActivity('GameLoop • PL/EN', { type: ActivityType.Watching });
+    readyClient.user.setActivity('PL EMULATOR CENTER • GameLoop • PL/EN', {
+      type: ActivityType.Watching,
+    });
 
     console.log(`Zalogowano jako ${readyClient.user.tag}.`);
     console.log(`Komendy zarejestrowano na serwerze ${guild.name}.`);
