@@ -11,6 +11,7 @@ import {
 import { BRAND } from './config.js';
 import { commandData } from './commands.js';
 import { sendEmbedCommand } from './embedCommand.js';
+import { resolveGuild } from './guildResolver.js';
 import { startHealthServer } from './healthServer.js';
 import {
   assignUnverifiedRole,
@@ -20,15 +21,14 @@ import {
 } from './setupGuild.js';
 
 const token = process.env.DISCORD_TOKEN?.trim();
-const guildId = process.env.GUILD_ID?.trim();
+const configuredGuildId = process.env.GUILD_ID?.trim();
+const guildId =
+  configuredGuildId && configuredGuildId !== 'wklej_tutaj_id_serwera'
+    ? configuredGuildId
+    : null;
 
 if (!token || token === 'wklej_tutaj_token_bota') {
   console.error('Brak DISCORD_TOKEN. Skopiuj .env.example do .env i uzupełnij token.');
-  process.exit(1);
-}
-
-if (!guildId || guildId === 'wklej_tutaj_id_serwera') {
-  console.error('Brak GUILD_ID. Uzupełnij identyfikator serwera w pliku .env.');
   process.exit(1);
 }
 
@@ -37,6 +37,7 @@ const client = new Client({
 });
 const healthServer = startHealthServer(client);
 let setupRunning = false;
+let activeGuildId = null;
 
 async function runSetup(guild, progress = () => {}) {
   if (setupRunning) {
@@ -54,7 +55,8 @@ async function runSetup(guild, progress = () => {}) {
 
 client.once(Events.ClientReady, async (readyClient) => {
   try {
-    const guild = await readyClient.guilds.fetch(guildId);
+    const guild = await resolveGuild(readyClient, guildId);
+    activeGuildId = guild.id;
     await guild.commands.set(commandData);
     readyClient.user.setActivity('PL EMULATOR CENTER • GameLoop • PL/EN', {
       type: ActivityType.Watching,
@@ -69,7 +71,7 @@ client.once(Events.ClientReady, async (readyClient) => {
 });
 
 client.on(Events.GuildMemberAdd, async (member) => {
-  if (member.guild.id !== guildId) return;
+  if (!activeGuildId || member.guild.id !== activeGuildId) return;
 
   try {
     await assignUnverifiedRole(member);
