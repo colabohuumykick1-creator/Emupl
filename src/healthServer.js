@@ -22,7 +22,7 @@ export function startHealthServer(client, options = {}) {
       return;
     }
 
-    if (path !== '/' && path !== '/ping') {
+    if (path !== '/' && path !== '/health') {
       response.writeHead(404, { 'content-type': 'application/json; charset=utf-8' });
       response.end(JSON.stringify({ error: 'Not Found' }));
       return;
@@ -48,7 +48,7 @@ export function startHealthServer(client, options = {}) {
   server.listen(port, host, () => {
     const address = server.address();
     const activePort = typeof address === 'object' && address ? address.port : port;
-    logger(`Serwer kontrolny działa na porcie ${activePort} (/ping).`);
+    logger(`Serwer kontrolny działa na porcie ${activePort} (/health).`);
   });
 
   return server;

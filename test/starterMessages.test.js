@@ -20,8 +20,6 @@ test('przewodnik GameLoop mieści się w limitach wiadomości Discorda', () => {
   const roleMap = new Map(
     [
       ROLE_KEYS.MEMBER,
-      ROLE_KEYS.UNVERIFIED,
-      ROLE_KEYS.VERIFIED,
       ROLE_KEYS.POLISH,
       ROLE_KEYS.ENGLISH,
       ROLE_KEYS.NEWS,
@@ -64,8 +62,6 @@ test('regulamin ma odstęp między polską i angielską wersją każdego punktu'
   const roleMap = new Map(
     [
       ROLE_KEYS.MEMBER,
-      ROLE_KEYS.UNVERIFIED,
-      ROLE_KEYS.VERIFIED,
       ROLE_KEYS.POLISH,
       ROLE_KEYS.ENGLISH,
       ROLE_KEYS.NEWS,
@@ -85,8 +81,6 @@ test('FAQ jest przenoszone do kanału o-gameloop', () => {
   const roleMap = new Map(
     [
       ROLE_KEYS.MEMBER,
-      ROLE_KEYS.UNVERIFIED,
-      ROLE_KEYS.VERIFIED,
       ROLE_KEYS.POLISH,
       ROLE_KEYS.ENGLISH,
       ROLE_KEYS.NEWS,
@@ -103,30 +97,4 @@ test('FAQ jest przenoszone do kanału o-gameloop', () => {
   assert.deepEqual(faq.previousChannelKeys, ['FAQ']);
   assert.match(links, /\[GameLoop 32-bit\]\(https:\/\/down\.gameloop\.com\/.+\.exe\)/);
   assert.match(links, /\[GameLoop 64-bit\]\(https:\/\/down\.gameloop\.com\/.+\.exe\)/);
-});
-
-test('wiadomość GLX zawiera cztery miejsca i tylko nick GLX HUUMY', () => {
-  const roleMap = new Map(
-    [
-      ROLE_KEYS.MEMBER,
-      ROLE_KEYS.UNVERIFIED,
-      ROLE_KEYS.VERIFIED,
-      ROLE_KEYS.POLISH,
-      ROLE_KEYS.ENGLISH,
-      ROLE_KEYS.NEWS,
-      ROLE_KEYS.EVENTS,
-    ].map((key) => [key, `<@&${key}>`]),
-  );
-  const message = starterMessages(roleMap).find(
-    (item) => item.channelKey === 'GLX_EXTREAM_TEAM',
-  );
-  const embed = message.embeds[0].toJSON();
-  const roster = embed.description.split('\n').filter((line) => /^\d\./.test(line));
-
-  assert.ok(message);
-  assert.equal(message.marker, 'setup:glx-extream-team:v1');
-  assert.equal(roster.length, 4);
-  assert.match(roster[0], /GLX HUUMY/);
-  assert.deepEqual(roster.slice(1), ['2. —', '3. —', '4. —']);
-  assert.match(embed.image.url, /glx-extream-team-huumy\.png$/);
 });

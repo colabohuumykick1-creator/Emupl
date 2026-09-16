@@ -34,15 +34,6 @@ test('audyt odblokowuje ręcznie dodane kanały dla roli Zweryfikowany', async (
     channels: {
       cache: new Collection([
         [
-          'team-roster',
-          makeChannel({
-            id: 'team-roster',
-            name: 'team',
-            parentId: 'team',
-            type: ChannelType.GuildText,
-          }),
-        ],
-        [
           'rekrutacja',
           makeChannel({
             id: 'rekrutacja',
@@ -112,7 +103,6 @@ test('audyt odblokowuje ręcznie dodane kanały dla roli Zweryfikowany', async (
   const verifiedRole = { id: 'verified' };
   const roleMap = new Map([[ROLE_KEYS.MEMBER, verifiedRole]]);
   const categoryMap = new Map([
-    ['TEAM', { id: 'team' }],
     ['START', { id: 'start' }],
     ['COMMUNITY', { id: 'community' }],
     ['EMULATORS', { id: 'emulators' }],
@@ -130,12 +120,11 @@ test('audyt odblokowuje ręcznie dodane kanały dla roli Zweryfikowany', async (
 
   assert.deepEqual(
     edits.map((edit) => edit.id),
-    ['team-roster', 'rekrutacja', 'ticket', 'voice'],
+    ['rekrutacja', 'ticket', 'voice'],
   );
   assert.deepEqual(edits[0].overwrite, { ViewChannel: true });
   assert.deepEqual(edits[1].overwrite, { ViewChannel: true });
-  assert.deepEqual(edits[2].overwrite, { ViewChannel: true });
-  assert.deepEqual(edits[3].overwrite, { ViewChannel: true, Connect: true });
+  assert.deepEqual(edits[2].overwrite, { ViewChannel: true, Connect: true });
   assert.ok(edits.every((edit) => edit.role === verifiedRole));
-  assert.equal(report.updated.length, 4);
+  assert.equal(report.updated.length, 3);
 });

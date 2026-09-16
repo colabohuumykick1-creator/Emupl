@@ -82,7 +82,7 @@ Kanały językowe są widoczne zależnie od wybranych ról: `🇵🇱 Polski` od
 
 ## Hosting na Renderze (wariant bezpłatny)
 
-Projekt zawiera gotowy `render.yaml` i endpoint kontrolny `/ping`.
+Projekt zawiera gotowy `render.yaml` i endpoint kontrolny `/health`.
 
 1. Umieść projekt w prywatnym repozytorium GitHub. Nie dodawaj pliku `.env`.
 2. W Render wybierz **New → Blueprint** i połącz repozytorium.
@@ -90,12 +90,12 @@ Projekt zawiera gotowy `render.yaml` i endpoint kontrolny `/ping`.
 4. Podczas tworzenia wpisz bezpiecznie dwie wymagane zmienne:
    - `DISCORD_TOKEN` — aktualny token bota,
    - `GUILD_ID` — identyfikator serwera Discord.
-5. Poczekaj, aż w logach pojawią się komunikaty o zalogowaniu bota i działaniu `/ping`.
+5. Poczekaj, aż w logach pojawią się komunikaty o zalogowaniu bota i działaniu `/health`.
 
 Po wdrożeniu otrzymasz adres podobny do:
 
 ```text
-https://emuplcoom.onrender.com/ping
+https://emuplcoom-bot.onrender.com/health
 ```
 
 W [cron-job.org](https://cron-job.org/) utwórz zadanie typu `GET` dla tego adresu wykonywane co 10 minut. Odpowiedź powinna mieć kod `200` i status bota.

@@ -27,16 +27,7 @@ const GAMELOOP_32_BIT_URL =
   'https://down.gameloop.com/channel/3/16412/GLP_installer_1000218456_market.exe';
 const GAMELOOP_64_BIT_URL =
   'https://down.gameloop.com/channel/3/26460/GLP_installer_900223150_market.exe';
-const GLX_TEAM_IMAGE_URL =
-  'https://raw.githubusercontent.com/bastian1v2v1-ctrl/EMUPLCOOM/main/assets/glx-extream-team-huumy.png';
-const VERIFIED_PUBLIC_CATEGORY_KEYS = [
-  'TEAM',
-  'START',
-  'COMMUNITY',
-  'EMULATORS',
-  'SUPPORT',
-  'VOICE',
-];
+const VERIFIED_PUBLIC_CATEGORY_KEYS = ['START', 'COMMUNITY', 'EMULATORS', 'SUPPORT', 'VOICE'];
 const VERIFIED_ACCESS_EXCLUDED_CHANNEL_KEYS = ['VERIFICATION', 'CHAT_PL', 'CHAT_GB'];
 const VERIFIED_ACCESS_EXCLUDED_CHANNEL_NAMES = new Set([
   'verification',
@@ -81,18 +72,6 @@ function allowVoice() {
   ];
 }
 
-function denyReadOnlyActions() {
-  return [
-    PermissionFlagsBits.SendMessages,
-    PermissionFlagsBits.AddReactions,
-    PermissionFlagsBits.CreatePublicThreads,
-    PermissionFlagsBits.CreatePrivateThreads,
-    PermissionFlagsBits.SendMessagesInThreads,
-    PermissionFlagsBits.UseApplicationCommands,
-    PermissionFlagsBits.SendVoiceMessages,
-  ];
-}
-
 function buildOverwrites(guild, roleMap, mode) {
   const everyone = guild.roles.everyone.id;
   const botId = guild.members.me.id;
@@ -104,16 +83,9 @@ function buildOverwrites(guild, roleMap, mode) {
 
   switch (mode) {
     case 'VERIFICATION':
-      {
-        const unverifiedId = roleMap.get(ROLE_KEYS.UNVERIFIED).id;
       return [
         {
           id: everyone,
-          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
-          deny: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.AddReactions],
-        },
-        {
-          id: unverifiedId,
           allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
           deny: [PermissionFlagsBits.SendMessages, PermissionFlagsBits.AddReactions],
         },
@@ -121,7 +93,6 @@ function buildOverwrites(guild, roleMap, mode) {
         ...staffIds.map((id) => ({ id, allow: allowText() })),
         botOverwrite,
       ];
-      }
     case 'PUBLIC_READ':
       return [
         {
@@ -146,17 +117,6 @@ function buildOverwrites(guild, roleMap, mode) {
       return [
         { id: everyone, deny: [PermissionFlagsBits.ViewChannel] },
         { id: memberId, allow: allowText() },
-        ...staffIds.map((id) => ({ id, allow: allowText() })),
-        botOverwrite,
-      ];
-    case 'MEMBER_READ':
-      return [
-        { id: everyone, deny: [PermissionFlagsBits.ViewChannel] },
-        {
-          id: memberId,
-          allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory],
-          deny: denyReadOnlyActions(),
-        },
         ...staffIds.map((id) => ({ id, allow: allowText() })),
         botOverwrite,
       ];
@@ -407,89 +367,14 @@ function rolePanelComponents() {
   return rows;
 }
 
-const VERIFICATION_CHOICES = {
-  POLISH: {
-    label: 'Polski',
-    emoji: '🇵🇱',
-    roleKeys: [ROLE_KEYS.POLISH],
-    responseLabel: 'Polski',
-  },
-  ENGLISH: {
-    label: 'English',
-    emoji: '🇬🇧',
-    roleKeys: [ROLE_KEYS.ENGLISH],
-    responseLabel: 'English',
-  },
-  BOTH: {
-    label: 'PL + EN',
-    emoji: '🌍',
-    roleKeys: [ROLE_KEYS.POLISH, ROLE_KEYS.ENGLISH],
-    responseLabel: 'Polski + English',
-  },
-};
-
-function verificationPanelComponents() {
-  const buttons = Object.entries(VERIFICATION_CHOICES).map(([key, choice]) =>
-    new ButtonBuilder()
-      .setCustomId(`emuplcoom-verify:${key}`)
-      .setLabel(choice.label)
-      .setEmoji(choice.emoji)
-      .setStyle(key === 'BOTH' ? ButtonStyle.Success : ButtonStyle.Primary),
-  );
-
-  return [new ActionRowBuilder().addComponents(buttons)];
-}
-
 export function starterMessages(roleMap) {
-  const unverifiedRole = roleMap.get(ROLE_KEYS.UNVERIFIED);
   const memberRole = roleMap.get(ROLE_KEYS.MEMBER);
-  const verifiedRole = roleMap.get(ROLE_KEYS.VERIFIED);
   const polishRole = roleMap.get(ROLE_KEYS.POLISH);
   const englishRole = roleMap.get(ROLE_KEYS.ENGLISH);
   const newsRole = roleMap.get(ROLE_KEYS.NEWS);
   const eventsRole = roleMap.get(ROLE_KEYS.EVENTS);
 
   return [
-    {
-      channelKey: 'VERIFICATION',
-      marker: 'setup:verification:v1',
-      pin: true,
-      embeds: [
-        markerEmbed(
-          'setup:verification:v1',
-          new EmbedBuilder()
-            .setColor(0x57f287)
-            .setTitle('🔐 PL EMULATOR CENTER — Secure Verification')
-            .setDescription(
-              'Welcome to the international **GameLoop emulator community**.\n' +
-                'Choose your language below to verify your account and unlock the server.\n\n' +
-                'Witaj w międzynarodowej społeczności graczy korzystających z emulatora **GameLoop**.\n' +
-                'Wybierz język poniżej, aby zweryfikować konto i odblokować serwer.',
-            )
-            .addFields(
-              {
-                name: '✅ One click / Jedno kliknięcie',
-                value:
-                  `${unverifiedRole} will be removed. You will receive ${memberRole}, ${verifiedRole} and the selected language role automatically.\n` +
-                  `${unverifiedRole} zostanie usunięta. Automatycznie otrzymasz role ${memberRole}, ${verifiedRole} oraz wybraną rolę językową.`,
-              },
-              {
-                name: '📜 Rules / Regulamin',
-                value:
-                  'By verifying, you confirm that you will follow the server rules, respect other members and use only legal, fair-play software.\n\n' +
-                  'Weryfikując konto, potwierdzasz przestrzeganie regulaminu, szacunek wobec innych i korzystanie wyłącznie z legalnego oprogramowania zgodnego z zasadami fair play.',
-              },
-              {
-                name: '🛡️ Safety / Bezpieczeństwo',
-                value:
-                  'The bot never asks for your password, token, e-mail address or game account details.\n' +
-                  'Bot nigdy nie prosi o hasło, token, adres e-mail ani dane konta w grze.',
-              },
-            ),
-        ),
-      ],
-      components: verificationPanelComponents(),
-    },
     {
       channelKey: 'WELCOME',
       marker: 'setup:welcome:v1',
@@ -657,27 +542,6 @@ export function starterMessages(roleMap) {
                   '🇬🇧 Paste short excerpts in the help channel and attach long logs as a file. Remove private information.',
               },
             ),
-        ),
-      ],
-    },
-    {
-      channelKey: 'GLX_EXTREAM_TEAM',
-      marker: 'setup:glx-extream-team:v1',
-      pin: true,
-      embeds: [
-        markerEmbed(
-          'setup:glx-extream-team:v1',
-          new EmbedBuilder()
-            .setColor(0xed1c24)
-            .setTitle('GLX EXTREAM TEAM ESPORT')
-            .setDescription(
-              '**SQUAD / SKŁAD**\n\n' +
-                '1. **GLX HUUMY**\n' +
-                '2. —\n' +
-                '3. —\n' +
-                '4. —',
-            )
-            .setImage(GLX_TEAM_IMAGE_URL),
         ),
       ],
     },
@@ -1058,174 +922,4 @@ export async function toggleSelfRole(interaction) {
       : `Dodano rolę ${role}. / Added role ${role}.`,
     flags: MessageFlags.Ephemeral,
   });
-}
-
-function findConfiguredRole(guild, roleKey) {
-  const spec = roles.find((role) => role.key === roleKey);
-  if (!spec) return null;
-
-  return guild.roles.cache.find(
-    (role) =>
-      !role.managed &&
-      (role.name === spec.name || (spec.legacyNames ?? []).includes(role.name)),
-  );
-}
-
-async function sendVerificationLog(interaction, choice, addedRoles) {
-  const logSpec = channels.find((channel) => channel.key === 'LOGS');
-  const acceptedNames = new Set([logSpec.name, ...(logSpec.legacyNames ?? [])]);
-  const logChannel = interaction.guild.channels.cache.find(
-    (channel) =>
-      acceptedNames.has(channel.name) &&
-      typeof channel.isTextBased === 'function' &&
-      channel.isTextBased(),
-  );
-
-  if (!logChannel || typeof logChannel.send !== 'function') return;
-
-  await logChannel.send({
-    embeds: [
-      new EmbedBuilder()
-        .setColor(0x57f287)
-        .setTitle('Member verified / Użytkownik zweryfikowany ✅')
-        .addFields(
-          {
-            name: 'User / Użytkownik',
-            value: `${interaction.user} (\`${interaction.user.id}\`)`,
-          },
-          { name: 'Language / Język', value: choice.responseLabel, inline: true },
-          {
-            name: 'Roles added / Dodane role',
-            value: addedRoles.length ? addedRoles.map((role) => `${role}`).join(', ') : 'None',
-            inline: true,
-          },
-          {
-            name: 'Account created / Konto utworzone',
-            value: `<t:${Math.floor(interaction.user.createdTimestamp / 1000)}:R>`,
-          },
-        )
-        .setTimestamp()
-        .setFooter({ text: BRAND.footer }),
-    ],
-    allowedMentions: { parse: [] },
-  });
-}
-
-export async function verifyMember(interaction) {
-  const choiceKey = interaction.customId.split(':')[1];
-  const choice = VERIFICATION_CHOICES[choiceKey];
-
-  if (!choice) {
-    await interaction.reply({
-      content:
-        'Ta opcja weryfikacji jest nieprawidłowa. / This verification option is invalid.',
-      flags: MessageFlags.Ephemeral,
-    });
-    return;
-  }
-
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-  const requestedRoleKeys = [ROLE_KEYS.MEMBER, ROLE_KEYS.VERIFIED, ...choice.roleKeys];
-  const requestedRoles = requestedRoleKeys.map((roleKey) =>
-    findConfiguredRole(interaction.guild, roleKey),
-  );
-
-  if (requestedRoles.some((role) => !role)) {
-    await interaction.editReply({
-      content:
-        'Nie znaleziono wymaganych ról. Administrator powinien użyć `/setup`. / Required roles were not found. An administrator should run `/setup`.',
-    });
-    return;
-  }
-
-  const uneditableRole = requestedRoles.find((role) => !role.editable);
-  if (uneditableRole) {
-    await interaction.editReply({
-      content:
-        `Nie mogę nadać roli ${uneditableRole}. Przenieś rolę bota wyżej. / ` +
-        `I cannot assign ${uneditableRole}. Move the bot role higher.`,
-    });
-    return;
-  }
-
-  const member = await interaction.guild.members.fetch(interaction.user.id);
-  const rolesToAdd = requestedRoles.filter((role) => !member.roles.cache.has(role.id));
-  const unverifiedRole = findConfiguredRole(interaction.guild, ROLE_KEYS.UNVERIFIED);
-
-  if (
-    unverifiedRole &&
-    member.roles.cache.has(unverifiedRole.id) &&
-    !unverifiedRole.editable
-  ) {
-    await interaction.editReply({
-      content:
-        `Nie mogę usunąć roli ${unverifiedRole}. Przenieś rolę bota wyżej. / ` +
-        `I cannot remove ${unverifiedRole}. Move the bot role higher.`,
-    });
-    return;
-  }
-
-  if (rolesToAdd.length) {
-    await member.roles.add(
-      rolesToAdd.map((role) => role.id),
-      `PL EMULATOR CENTER verification: ${choiceKey}`,
-    );
-  }
-
-  if (unverifiedRole && member.roles.cache.has(unverifiedRole.id)) {
-    await member.roles.remove(
-      unverifiedRole.id,
-      `PL EMULATOR CENTER verification complete: ${choiceKey}`,
-    );
-  }
-
-  await interaction.editReply({
-    embeds: [
-      new EmbedBuilder()
-        .setColor(0x57f287)
-        .setTitle(
-          rolesToAdd.length
-            ? 'Verification complete / Weryfikacja zakończona ✅'
-            : 'Already verified / Konto już zweryfikowane ✅',
-        )
-        .setDescription(
-          `**Language / Język:** ${choice.responseLabel}\n\n` +
-            'You now have access to the server. Start in **#welcome**, read **#rules**, then choose additional roles in **#choose-roles**.\n\n' +
-            'Masz już dostęp do serwera. Zacznij od **#welcome**, przeczytaj **#rules**, a następnie wybierz dodatkowe role na **#choose-roles**.',
-        )
-        .setFooter({ text: BRAND.footer })
-        .setTimestamp(),
-    ],
-  });
-
-  await sendVerificationLog(interaction, choice, rolesToAdd).catch((error) => {
-    console.error('Nie udało się zapisać logu weryfikacji:', error);
-  });
-}
-
-export async function assignUnverifiedRole(member) {
-  if (member.user.bot) return;
-
-  const unverifiedRole = findConfiguredRole(member.guild, ROLE_KEYS.UNVERIFIED);
-  const memberRole = findConfiguredRole(member.guild, ROLE_KEYS.MEMBER);
-  const verifiedRole = findConfiguredRole(member.guild, ROLE_KEYS.VERIFIED);
-
-  if (!unverifiedRole) {
-    throw new Error('Missing Unverified role. Run /setup.');
-  }
-
-  if (!unverifiedRole.editable) {
-    throw new Error('The bot role must be above Unverified.');
-  }
-
-  if (
-    member.roles.cache.has(memberRole?.id) ||
-    member.roles.cache.has(verifiedRole?.id) ||
-    member.roles.cache.has(unverifiedRole.id)
-  ) {
-    return;
-  }
-
-  await member.roles.add(unverifiedRole.id, 'New PL EMULATOR CENTER member');
 }

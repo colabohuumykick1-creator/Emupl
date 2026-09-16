@@ -11,33 +11,25 @@ import {
 import { BRAND } from './config.js';
 import { commandData } from './commands.js';
 import { sendEmbedCommand } from './embedCommand.js';
-import { resolveGuild } from './guildResolver.js';
 import { startHealthServer } from './healthServer.js';
-import {
-  assignUnverifiedRole,
-  setupGuild,
-  toggleSelfRole,
-  verifyMember,
-} from './setupGuild.js';
+import { setupGuild, toggleSelfRole } from './setupGuild.js';
 
 const token = process.env.DISCORD_TOKEN?.trim();
-const configuredGuildId = process.env.GUILD_ID?.trim();
-const guildId =
-  configuredGuildId && configuredGuildId !== 'wklej_tutaj_id_serwera'
-    ? configuredGuildId
-    : null;
+const guildId = process.env.GUILD_ID?.trim();
 
 if (!token || token === 'wklej_tutaj_token_bota') {
   console.error('Brak DISCORD_TOKEN. Skopiuj .env.example do .env i uzupełnij token.');
   process.exit(1);
 }
 
-const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers],
-});
+if (!guildId || guildId === 'wklej_tutaj_id_serwera') {
+  console.error('Brak GUILD_ID. Uzupełnij identyfikator serwera w pliku .env.');
+  process.exit(1);
+}
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const healthServer = startHealthServer(client);
 let setupRunning = false;
-let activeGuildId = null;
 
 async function runSetup(guild, progress = () => {}) {
   if (setupRunning) {
@@ -55,12 +47,9 @@ async function runSetup(guild, progress = () => {}) {
 
 client.once(Events.ClientReady, async (readyClient) => {
   try {
-    const guild = await resolveGuild(readyClient, guildId);
-    activeGuildId = guild.id;
+    const guild = await readyClient.guilds.fetch(guildId);
     await guild.commands.set(commandData);
-    readyClient.user.setActivity('PL EMULATOR CENTER • GameLoop • PL/EN', {
-      type: ActivityType.Watching,
-    });
+    readyClient.user.setActivity('GameLoop • PL/EN', { type: ActivityType.Watching });
 
     console.log(`Zalogowano jako ${readyClient.user.tag}.`);
     console.log(`Komendy zarejestrowano na serwerze ${guild.name}.`);
@@ -70,23 +59,8 @@ client.once(Events.ClientReady, async (readyClient) => {
   }
 });
 
-client.on(Events.GuildMemberAdd, async (member) => {
-  if (!activeGuildId || member.guild.id !== activeGuildId) return;
-
-  try {
-    await assignUnverifiedRole(member);
-  } catch (error) {
-    console.error(`Nie udało się nadać roli Unverified użytkownikowi ${member.user.tag}:`, error);
-  }
-});
-
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
-    if (interaction.isButton() && interaction.customId.startsWith('emuplcoom-verify:')) {
-      await verifyMember(interaction);
-      return;
-    }
-
     if (interaction.isButton() && interaction.customId.startsWith('emuplcoom-role:')) {
       await toggleSelfRole(interaction);
       return;
