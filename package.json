@@ -1,8 +1,8 @@
 {
-  "name": "emuplcoom-bot",
+  "name": "pubgplemulator",
   "version": "1.0.0",
   "private": true,
-  "description": "Bot konfigurujący serwer Discord społeczności EMUPLCOOM.",
+  "description": "Bot Discord dla społeczności PUBG Mobile PL Emulator Center.",
   "type": "module",
   "main": "src/bot.js",
   "scripts": {
